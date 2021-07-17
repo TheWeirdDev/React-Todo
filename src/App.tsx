@@ -17,13 +17,16 @@ const App: React.FC = () => {
   const [isLoading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  let access = localStorage.getItem('access_token');
+  let refresh = localStorage.getItem('refresh_token');
+
   const saveJwt = (res: Jwt) => {
     localStorage.setItem('access_token', res.access);
     localStorage.setItem('refresh_token', res.refresh);
+    access = res.access;
+    refresh = res.refresh;
   }
 
-  let access = localStorage.getItem('access_token');
-  let refresh = localStorage.getItem('refresh_token');
   useEffect(() => {
     (async () => {
 
@@ -41,7 +44,7 @@ const App: React.FC = () => {
       }
     }
   })();
-  },);
+  });
 
   useEffect(() => {
     (async () => {
@@ -49,20 +52,20 @@ const App: React.FC = () => {
         const res = await getTasks(access);
         if (res.success) {
           setTasks(res.data);
+          setLoading(false);
         }
       }
     })();
-    setLoading(false);
   }, [access, isLoggedIn]);
 
 
   const setLoginStatus = (res: LoginResult) => {
-    setIsLoggedIn(res.success);
     if (res.success) {
       saveJwt(res.data!);
     } else {
       console.log(res.error);
     }
+    setIsLoggedIn(res.success);
   };
 
   const addTaskItem = async (task: TaskItem) => {
